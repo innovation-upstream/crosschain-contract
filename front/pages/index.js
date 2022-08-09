@@ -6,6 +6,8 @@ import { ethers, providers } from 'ethers';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import LIFI from '@lifi/sdk'
 
+const rinkeybyBridge = '0x236C6fFc7c72d1Fe69ff3530D5aBeBC0B1594F99';
+
 let web3Modal;
 if (typeof window !== 'undefined') {
   web3Modal = new Web3Modal({
@@ -88,20 +90,24 @@ export default function Home() {
   }
 
   const doSwap = async() => {
-    const newChain = 97;
     if(userSigner && chainID && amount && parseFloat(amount) > 0) {
+      await axios.post('http://localhost:4000/add_tx', {
+        from_address: userAddr,
+        to_address: rinkeybyBridge,
+        from_chain: 3,
+        to_chain: 4,
+        status: 0,
+        from_amount: ethers.utils.parseEther(amount.toString()).toString()
+      });
+
       const routesRequest = {
-        // fromAddress: userAddr,
-        fromChainId: 4, // Ropsten
+        fromAddress: userAddr,
+        toAddress: rinkeybyBridge,
+        fromChainId: 3, // Ropsten
         fromAmount: ethers.utils.parseEther(amount.toString()).toString(), // ETH amount
-        // fromTokenAddress: '0xe71678794fff8846bff855f716b0ce9d9a78e844', // Test Token
-        fromTokenAddress: '0x9ac2c46d7acc21c881154d57c0dc1c55a3139198',
-        // fromTokenAddress: '0x0000000000000000000000000000000000000000',
-        toChainId: 3, // Rinkeby
-        toTokenAddress: '0xe71678794fff8846bff855f716b0ce9d9a78e844'
-        // toTokenAddress: '0xd86bcb7d85163fbc81756bb9cc22225d6abccadb', // BNB Test Token
-        // toTokenAddress: '0x9ac2c46d7acc21c881154d57c0dc1c55a3139198' // Test Token
-        // toTokenAddress: '0x0000000000000000000000000000000000000000'
+        fromTokenAddress: '0xe71678794fff8846bff855f716b0ce9d9a78e844', // Test Token
+        toChainId: 4, // Rinkeby
+        toTokenAddress: '0x9ac2c46d7acc21c881154d57c0dc1c55a3139198' // Test Token
       };
       const routesResponse = await lifi.getRoutes(routesRequest);
 
